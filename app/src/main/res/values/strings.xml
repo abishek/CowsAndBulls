@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Cows And Bulls</string>
+    <string name="button_guess">Guess</string>
+    <string name="edit_number">Enter a 4 digit number</string>
 </resources>
