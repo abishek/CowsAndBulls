@@ -1,29 +1,42 @@
 package com.rohabini.cowsandbulls;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleExpandableListAdapter;
-import android.widget.TableRow;
-import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameActivity extends AppCompatActivity {
 
-    ArrayList<GuessTally> guesses = new ArrayList<GuessTally>();
+    ArrayList<Integer> digits;
+    ArrayList<GuessTally> guesses = new ArrayList<>();
+
+    private void generateNumberGuess() {
+        Random r = new Random();
+        int n = r.nextInt(10);
+        digits.add(n);
+
+        for(int i=0; i<3; i++) {
+            do n = r.nextInt(10); while(!digits.contains(n));
+            digits.add(n);
+        }
+    }
+
+    private ArrayList<Integer> numberToDigits(int num) {
+        ArrayList<Integer> res = new ArrayList<>();
+        while(num > 0) {
+            res.add(num % 10);
+            num /= 10;
+        }
+        return res;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        generateNumberGuess();
         setContentView(R.layout.activity_game);
 
         final ListView listView = (ListView) findViewById(R.id.listView);
@@ -37,8 +50,21 @@ public class GameActivity extends AppCompatActivity {
         EditText editText = (EditText) findViewById(R.id.editText);
         String guessNumber = editText.getText().toString();
         Integer number = Integer.parseInt(guessNumber);
+        int bulls = 0;
+        int cows = 0;
+        ArrayList<Integer> guessDigits = numberToDigits(number);
+        for(Integer i : guessDigits) {
+                if(digits.contains(i)) {
+                    int locationInDigits = digits.indexOf(i);
+                    int locationInGuess = guessDigits.indexOf(i);
+                    if (locationInDigits == locationInGuess)
+                        bulls++;
+                    else
+                        cows++;
+                }
+        }
 
-        GuessTally tally = new GuessTally(number, 0, 0);
+        GuessTally tally = new GuessTally(number, cows, bulls);
         guesses.add(tally);
         GuessAdapter adapter = (GuessAdapter)((ListView)findViewById(R.id.listView)).getAdapter();
         adapter.notifyDataSetChanged();
